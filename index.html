@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Magen — AI agents you can actually trust in production</title>
+<meta name="description" content="We build custom AI agents with cryptographic proof, deterministic policies, human approval gates, and one-click rollback. Powered by Enact.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#D4A849;--gold-dim:#9E7B2F;--gold-bright:#F0CC6B;--bg:#0A0A0C;--bg-card:#111114;--text:#E8E6E1;--text-dim:#8A8880;--text-muted:#5A5850;--border:#1E1E24;--red:#E84855;--green:#4ADE80}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.5}
+::selection{background:var(--gold);color:var(--bg)}
+a{color:var(--gold);text-decoration:none;transition:opacity .2s}
+a:hover{opacity:.85}
+
+.fi{opacity:0;transform:translateY(28px);transition:opacity .65s ease,transform .65s ease}
+.fi.v{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}
+
+.sec{padding:96px 24px;max-width:960px;margin:0 auto}
+.sec-w{padding:96px 24px;max-width:1080px;margin:0 auto}
+.dv{height:1px;background:var(--border);max-width:960px;margin:0 auto}
+
+.lbl{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:16px;color:var(--gold-dim)}
+.h2{font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(26px,3.5vw,40px);line-height:1.15;margin-bottom:16px}
+.sub{font-size:17px;color:var(--text-dim);line-height:1.6;max-width:560px;margin-bottom:48px}
+
+.bp{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:var(--bg);font-family:'DM Sans',sans-serif;font-weight:700;font-size:15px;padding:14px 28px;border-radius:6px;border:none;cursor:pointer;text-decoration:none;letter-spacing:.01em;transition:background .2s,transform .15s}
+.bp:hover{background:var(--gold-bright);transform:translateY(-1px);opacity:1}
+.bg{display:inline-flex;align-items:center;gap:8px;background:transparent;color:var(--gold);font-family:'DM Sans',sans-serif;font-weight:600;font-size:15px;padding:14px 28px;border-radius:6px;cursor:pointer;border:1px solid var(--gold-dim);text-decoration:none;transition:border-color .2s,color .2s}
+.bg:hover{border-color:var(--gold-bright);color:var(--gold-bright);opacity:1}
+.btn-sm{padding:9px 18px;font-size:13px}
+
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:28px}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;border-bottom:1px solid transparent;transition:all .3s}
+nav.scrolled{background:rgba(10,10,12,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom-color:var(--border)}
+.ni{max-width:1080px;margin:0 auto;padding:14px 24px;display:flex;justify-content:space-between;align-items:center}
+.nl{display:flex;align-items:center;gap:28px}
+.nk{font-size:13px;color:var(--text-dim);font-weight:500;text-decoration:none}
+.nk:hover{color:var(--text);opacity:1}
+
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.g4{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+
+.ct{border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.ct-h{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border)}
+.ct-h div{padding:12px 24px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.ct-h div:first-child{color:var(--text-muted);border-right:1px solid var(--border)}
+.ct-h div:last-child{color:var(--gold)}
+.cr{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border)}
+.cr:last-child{border-bottom:none}
+.cr div{padding:14px 24px;font-size:14px;display:flex;align-items:center;gap:10px}
+.cr div:first-child{color:var(--text-dim);border-right:1px solid var(--border)}
+.cr div:last-child{color:var(--text)}
+
+.st{background:var(--bg-card);border:1px solid var(--border);padding:24px 28px;display:grid;grid-template-columns:48px 1fr auto;gap:20px;align-items:start}
+.st+.st{margin-top:2px}
+
+.ci{display:flex;gap:12px;align-items:flex-start;margin-bottom:14px}
+.ci span:first-child{color:var(--gold);font-size:14px;margin-top:2px;flex-shrink:0}
+.ci span:last-child{font-size:15px;color:var(--text-dim);line-height:1.5}
+
+@media(max-width:640px){
+  .nl .nk{display:none}
+  .sec,.sec-w{padding:64px 20px}
+  .cr div,.ct-h div{padding:12px 16px;font-size:13px}
+  .st{grid-template-columns:36px 1fr;gap:12px;padding:20px}
+  .st-t{display:none}
+  .hb{flex-direction:column}
+  .hb a{width:100%;justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<nav id="tn">
+  <div class="ni">
+    <a href="#" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+      <svg width="26" height="26" viewBox="0 0 48 48" fill="none"><path d="M24 4L6 12V22C6 33.1 13.7 43.3 24 46C34.3 43.3 42 33.1 42 22V12L24 4Z" fill="#D4A849" fill-opacity=".1" stroke="#D4A849" stroke-width="1.5"/><path d="M18 24L22 28L30 20" stroke="#D4A849" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span style="font-family:'Playfair Display',serif;font-weight:900;font-size:19px;color:#D4A849;letter-spacing:.04em">MAGEN</span>
+      <span style="font-size:10px;color:#5A5850;font-weight:500;letter-spacing:.14em">&#1502;&#1490;&#1503;</span>
+    </a>
+    <div class="nl">
+      <a href="#process" class="nk">Process</a>
+      <a href="#guarantees" class="nk">Trust</a>
+      <a href="#pricing" class="nk">Get Started</a>
+      <a href="https://cal.com/magen-agents/discovery" class="bp btn-sm">Book a Call &#8594;</a>
+    </div>
+  </div>
+</nav>
+
+<header style="position:relative;overflow:hidden">
+  <div style="position:absolute;width:700px;height:700px;top:-250px;right:-150px;background:radial-gradient(circle,rgba(212,168,73,.06) 0%,transparent 70%);pointer-events:none"></div>
+  <div class="sec-w" style="padding-top:150px;padding-bottom:72px">
+    <div class="fi lbl">Agent development studio</div>
+    <div class="fi d1">
+      <h1 style="font-family:'Playfair Display',serif;font-weight:900;font-size:clamp(34px,5.2vw,60px);line-height:1.08;max-width:720px;margin-bottom:24px;background:linear-gradient(135deg,#E8E6E1 20%,#D4A849 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">We build AI agents you can actually trust in production.</h1>
+    </div>
+    <div class="fi d2">
+      <p style="font-size:18px;line-height:1.65;color:#8A8880;max-width:560px;margin-bottom:36px">The only shop that gives you <span style="color:#D4A849">cryptographic proof</span> your agent did what it was supposed to &mdash; and an undo button when it didn't.</p>
+    </div>
+    <div class="fi d3 hb" style="display:flex;gap:14px;flex-wrap:wrap">
+      <a href="https://cal.com/magen-agents/discovery" class="bp">Book a Discovery Call &#8594;</a>
+      <a href="#guarantees" class="bg">See How It Works</a>
+    </div>
+    <div class="fi d4" style="margin-top:52px;display:flex;gap:28px;flex-wrap:wrap">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#5A5850;letter-spacing:.12em;text-transform:uppercase">SOC 2 ready</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#5A5850;letter-spacing:.12em;text-transform:uppercase">EU AI Act</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#5A5850;letter-spacing:.12em;text-transform:uppercase">Zero-knowledge</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#5A5850;letter-spacing:.12em;text-transform:uppercase">Signed receipts</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#5A5850;letter-spacing:.12em;text-transform:uppercase">One-click rollback</span>
+    </div>
+  </div>
+</header>
+
+<div class="dv"></div>
+
+<section class="sec" id="problem">
+  <div class="fi lbl">The problem</div>
+  <div class="fi"><h2 class="h2">Everyone's building AI agents.</h2><p style="font-size:20px;color:#8A8880;margin-bottom:44px">Nobody's building them safely.</p></div>
+  <div class="fi d1 ct">
+    <div class="ct-h"><div>Your dev shop</div><div>Magen</div></div>
+    <div class="cr"><div><span style="color:#E84855">&#10007;</span> Ships fast, breaks faster</div><div><span style="color:#4ADE80">&#10003;</span> Ships safe and fast</div></div>
+    <div class="cr"><div><span style="color:#E84855">&#10007;</span> &ldquo;We'll add guardrails later&rdquo;</div><div><span style="color:#4ADE80">&#10003;</span> Guardrails are the architecture</div></div>
+    <div class="cr"><div><span style="color:#E84855">&#10007;</span> No audit trail</div><div><span style="color:#4ADE80">&#10003;</span> Signed receipt every action</div></div>
+    <div class="cr"><div><span style="color:#E84855">&#10007;</span> Pray nothing breaks</div><div><span style="color:#4ADE80">&#10003;</span> One-command rollback</div></div>
+    <div class="cr"><div><span style="color:#E84855">&#10007;</span> You own the outage</div><div><span style="color:#4ADE80">&#10003;</span> We own the agent</div></div>
+  </div>
+</section>
+
+<div class="dv"></div>
+
+<section class="sec">
+  <div class="fi lbl" style="color:#E84855;opacity:.85">This already happened</div>
+  <div class="fi"><h2 class="h2" style="margin-bottom:44px">Not hypothetical. Production incidents.</h2></div>
+  <div class="g2">
+    <div class="fi card" style="display:flex;flex-direction:column;gap:14px">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#E84855;letter-spacing:.12em;text-transform:uppercase">13 hours down</span>
+      <h3 style="font-size:19px;font-weight:700">Kiro Agent &mdash; AWS Outage</h3>
+      <p style="font-size:14px;color:#8A8880;line-height:1.6;flex:1">AI agent with broad permissions terminated critical EC2 instances. No human gate. Cascading failures took down major services.</p>
+      <div style="border-top:1px solid #1E1E24;padding-top:14px;margin-top:4px">
+        <p style="font-size:13px;color:#D4A849;font-weight:600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D4A849" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:-2px;margin-right:4px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>Magen agents can't do this. Policy blocks it before execution.</p>
+      </div>
+    </div>
+    <div class="fi d1 card" style="display:flex;flex-direction:column;gap:14px">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#E84855;letter-spacing:.12em;text-transform:uppercase">Production data lost</span>
+      <h3 style="font-size:19px;font-weight:700">Replit &mdash; Deleted Prod DB</h3>
+      <p style="font-size:14px;color:#8A8880;line-height:1.6;flex:1">Agent doing &ldquo;maintenance&rdquo; dropped critical tables it thought were unused. Plausible reasoning. Irreversible result.</p>
+      <div style="border-top:1px solid #1E1E24;padding-top:14px;margin-top:4px">
+        <p style="font-size:13px;color:#D4A849;font-weight:600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D4A849" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:-2px;margin-right:4px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>Magen agents undo this. One-command rollback restores every row.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="dv"></div>
+
+<section class="sec">
+  <div class="fi lbl">What we build</div>
+  <div class="fi"><h2 class="h2">Tell us the job. We build the agent.</h2></div>
+  <div class="fi"><p class="sub">Every domain. Every integration. Same safety guarantees.</p></div>
+  <div class="g3">
+    <div class="fi card" style="padding:22px 24px;display:flex;align-items:flex-start;gap:14px">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D4A849" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      <div><div style="font-size:15px;font-weight:700;margin-bottom:4px">E-Commerce</div><div style="font-size:13px;color:#8A8880;line-height:1.5">Inventory sync &middot; Stock updates &middot; Order routing &middot; Multi-channel</div></div>
+    </div>
+    <div class="fi card" style="padding:22px 24px;display:flex;align-items:flex-start;gap:14px">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D4A849" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/></svg>
+      <div><div style="font-size:15px;font-weight:700;margin-bottom:4px">Manufacturing</div><div style="font-size:13px;color:#8A8880;line-height:1.5">Inventory &middot; CRM &middot; Supply chain &middot; Vendor coordination</div></div>
+    </div>
+    <div class="fi card" style="padding:22px 24px;display:flex;align-items:flex-start;gap:14px">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D4A849" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      <div><div style="font-size:15px;font-weight:700;margin-bottom:4px">Legal</div><div style="font-size:13px;color:#8A8880;line-height:1.5">Document management &middot; Contract review &middot; Compliance tracking</div></div>
+    </div>
+    <div class="fi card" style="padding:22px 24px;display:flex;align-items:flex-start;gap:14px">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D4A849" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+      <div><div style="font-size:15px;font-weight:700;margin-bottom:4px">Finance</div><div style="font-size:13px;color:#8A8880;line-height:1.5">SOX-ready &middot; Audit-proof &middot; Reconciliation</div></div>
+    </div>
+    <div class="fi card" style="padding:22px 24px;display:flex;align-items:flex-start;gap:14px">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D4A849" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <div><div style="font-size:15px;font-weight:700;margin-bottom:4px">Sales &amp; GTM</div><div style="font-size:13px;color:#8A8880;line-height:1.5">CRM sync &middot; Lead enrichment &middot; Customer data ETL</div></div>
+    </div>
+    <div class="fi card" style="padding:22px 24px;display:flex;align-items:flex-start;gap:14px">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D4A849" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+      <div><div style="font-size:15px;font-weight:700;margin-bottom:4px">Custom</div><div style="font-size:13px;color:#8A8880;line-height:1.5">Your weird workflow. Our guardrails.</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="dv"></div>
+
+<section class="sec" id="process">
+  <div class="fi lbl">Our process</div>
+  <div class="fi"><h2 class="h2">Five weeks. Zero guesswork.</h2></div>
+  <div class="fi"><p class="sub">Every engagement follows the same battle-tested playbook.</p></div>
+  <div class="fi d1">
+    <div class="st" style="border-radius:8px 8px 2px 2px">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#D4A849;font-weight:500">01</span>
+      <div><div style="font-size:16px;font-weight:700;margin-bottom:4px">Discovery</div><div style="font-size:14px;color:#8A8880;line-height:1.55">What does your agent need to do? We map the workflows, integrations, and data it'll touch.</div></div>
+      <span class="st-t" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#5A5850;letter-spacing:.08em;white-space:nowrap">Week 1</span>
+    </div>
+    <div class="st">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#D4A849;font-weight:500">02</span>
+      <div><div style="font-size:16px;font-weight:700;margin-bottom:4px">Threat Model</div><div style="font-size:14px;color:#8A8880;line-height:1.55">What could go wrong? We identify every destructive path and design policies to block them.</div></div>
+      <span class="st-t" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#5A5850;letter-spacing:.08em;white-space:nowrap">Week 1&ndash;2</span>
+    </div>
+    <div class="st">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#D4A849;font-weight:500">03</span>
+      <div><div style="font-size:16px;font-weight:700;margin-bottom:4px">Build</div><div style="font-size:14px;color:#8A8880;line-height:1.55">Agent + policies + receipts + rollback. Built on Enact, our open-source governance SDK.</div></div>
+      <span class="st-t" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#5A5850;letter-spacing:.08em;white-space:nowrap">Week 2&ndash;4</span>
+    </div>
+    <div class="st">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#D4A849;font-weight:500">04</span>
+      <div><div style="font-size:16px;font-weight:700;margin-bottom:4px">Red Team</div><div style="font-size:14px;color:#8A8880;line-height:1.55">We try to break it. Prompt injection, edge cases, permission escalation. Before you ship, not after.</div></div>
+      <span class="st-t" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#5A5850;letter-spacing:.08em;white-space:nowrap">Week 4</span>
+    </div>
+    <div class="st" style="border-radius:2px 2px 8px 8px">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#D4A849;font-weight:500">05</span>
+      <div><div style="font-size:16px;font-weight:700;margin-bottom:4px">Deploy + Monitor</div><div style="font-size:14px;color:#8A8880;line-height:1.55">You get a working agent, a dashboard, and a rollback button. We stick around for 30 days.</div></div>
+      <span class="st-t" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#5A5850;letter-spacing:.08em;white-space:nowrap">Week 5+</span>
+    </div>
+  </div>
+</section>
+
+<div class="dv"></div>
+
+<section class="sec" id="guarantees">
+  <div class="fi lbl">The four guarantees</div>
+  <div class="fi"><h2 class="h2">Every Magen agent ships with all four.</h2></div>
+  <div class="fi"><p class="sub">This is what &ldquo;provable safety&rdquo; means. Not vibes. Receipts.</p></div>
+  <div class="g4">
+    <div class="fi card" style="text-align:center;padding:32px 22px;display:flex;flex-direction:column;align-items:center;gap:12px">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#D4A849" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>
+      <div style="font-size:15px;font-weight:700">Policy Gate</div>
+      <p style="font-size:13px;color:#8A8880;line-height:1.55">Every action checked against deterministic Python policies before it runs. No LLMs in the safety layer.</p>
+    </div>
+    <div class="fi card" style="text-align:center;padding:32px 22px;display:flex;flex-direction:column;align-items:center;gap:12px">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#D4A849" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>
+      <div style="font-size:15px;font-weight:700">Signed Receipt</div>
+      <p style="font-size:13px;color:#8A8880;line-height:1.55">Cryptographic proof of every action &mdash; what happened, who requested it, what policy allowed it.</p>
+    </div>
+    <div class="fi card" style="text-align:center;padding:32px 22px;display:flex;flex-direction:column;align-items:center;gap:12px">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#D4A849" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
+      <div style="font-size:15px;font-weight:700">Human Gate</div>
+      <p style="font-size:13px;color:#8A8880;line-height:1.55">High-risk ops pause and email a human for approval. Signed link. One-time use. Auto-deny on timeout.</p>
+    </div>
+    <div class="fi card" style="text-align:center;padding:32px 22px;display:flex;flex-direction:column;align-items:center;gap:12px">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#D4A849" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+      <div style="font-size:15px;font-weight:700">One-Click Undo</div>
+      <p style="font-size:13px;color:#8A8880;line-height:1.55">Pre-action state capture means rollback is one command. Rows restored, branches deleted, PRs closed.</p>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="fi card" style="text-align:center;padding:48px 36px;border-color:#9E7B2F;border-radius:10px;background:linear-gradient(180deg,rgba(212,168,73,.04) 0%,#111114 100%)">
+    <div class="lbl" style="color:#D4A849;margin-bottom:20px">Our moat</div>
+    <h2 class="h2" style="margin-bottom:16px">We didn't just learn agent safety. We wrote the open-source standard for it.</h2>
+    <p style="font-size:16px;color:#8A8880;line-height:1.6;max-width:520px;margin:0 auto 28px">
+      Magen agents are powered by <strong style="color:#D4A849">Enact</strong> &mdash; our source-available governance SDK. 30+ production policies. Zero-knowledge architecture. Deterministic enforcement.
+    </p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a href="https://github.com/russellmiller3/enact" target="_blank" rel="noopener" class="bg">View on GitHub &#8594;</a>
+      <a href="https://docs.enact.cloud" target="_blank" rel="noopener" class="bg" style="border-color:#1E1E24;color:#8A8880">Read the Docs</a>
+    </div>
+  </div>
+</section>
+
+<div class="dv"></div>
+
+<section class="sec" id="pricing">
+  <div class="fi lbl">Get started</div>
+  <div class="fi"><h2 class="h2">Every project starts with a conversation.</h2></div>
+  <div class="fi"><p class="sub">30-minute discovery call. We'll map your workflows, identify what could go wrong, and tell you honestly if we're the right fit.</p></div>
+  <div class="fi d1 card" style="padding:36px 32px;max-width:600px">
+    <h3 style="font-size:18px;font-weight:700;margin-bottom:20px">Every engagement includes:</h3>
+    <div class="ci"><span>&#10003;</span><span>Discovery call + workflow mapping</span></div>
+    <div class="ci"><span>&#10003;</span><span>Threat model for every destructive path</span></div>
+    <div class="ci"><span>&#10003;</span><span>Custom agent build on Enact</span></div>
+    <div class="ci"><span>&#10003;</span><span>Red team testing before deploy</span></div>
+    <div class="ci"><span>&#10003;</span><span>Dashboard + rollback button</span></div>
+    <div class="ci"><span>&#10003;</span><span>30 days post-deploy support</span></div>
+    <div class="ci" style="margin-bottom:0"><span>&#10003;</span><span>All receipts + policy code &mdash; you own everything</span></div>
+    <div style="border-top:1px solid #1E1E24;padding-top:20px;margin-top:24px">
+      <p style="font-size:14px;color:#5A5850;line-height:1.6;margin-bottom:20px">No pitch deck. No pressure. If we're not the right fit, we'll say so.</p>
+      <a href="https://cal.com/magen-agents/discovery" class="bp">Book a Discovery Call &#8594;</a>
+    </div>
+  </div>
+</section>
+
+<section style="padding:96px 24px 48px;max-width:960px;margin:0 auto;text-align:center">
+  <div class="fi">
+    <h2 style="font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(24px,3vw,36px);line-height:1.2;max-width:620px;margin:0 auto 16px">Stop hiring dev shops that ship agents without a safety net.</h2>
+    <p style="font-size:16px;color:#8A8880;max-width:480px;margin:0 auto 32px;line-height:1.55">Cryptographic proof. Deterministic policies. An undo button. That's the difference.</p>
+    <a href="https://cal.com/magen-agents/discovery" class="bp">Book a Discovery Call &#8594;</a>
+  </div>
+</section>
+
+<footer style="border-top:1px solid #1E1E24;padding:28px 24px;max-width:1080px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
+  <div style="display:flex;align-items:center;gap:8px">
+    <svg width="18" height="18" viewBox="0 0 48 48" fill="none"><path d="M24 4L6 12V22C6 33.1 13.7 43.3 24 46C34.3 43.3 42 33.1 42 22V12L24 4Z" fill="#D4A849" fill-opacity=".1" stroke="#D4A849" stroke-width="1.5"/><path d="M18 24L22 28L30 20" stroke="#D4A849" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span style="font-size:12px;color:#5A5850">&copy; 2026 Magen &middot; Powered by <a href="https://enact.cloud" target="_blank" rel="noopener" style="color:#9E7B2F">Enact</a></span>
+  </div>
+  <div style="display:flex;gap:20px">
+    <a href="https://github.com/russellmiller3/enact" target="_blank" rel="noopener" style="font-size:12px;color:#5A5850">GitHub</a>
+    <a href="https://docs.enact.cloud" target="_blank" rel="noopener" style="font-size:12px;color:#5A5850">Docs</a>
+    <a href="mailto:hello@magenagents.com" style="font-size:12px;color:#5A5850">Contact</a>
+  </div>
+</footer>
+
+<script>
+var n=document.getElementById('tn');
+window.addEventListener('scroll',function(){n.classList.toggle('scrolled',window.scrollY>50)});
+var o=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('v');o.unobserve(e.target)}})},{threshold:0.12});
+document.querySelectorAll('.fi').forEach(function(el){o.observe(el)});
+</script>
+</body>
+</html>
